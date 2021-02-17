@@ -1,32 +1,30 @@
-import React, { useState, useEffect } from "react"
+import React, { useRef, useState } from "react"
 import styles from "./style.module.css"
 import { Button } from "~/components/atoms/button"
 
 const Home = (): JSX.Element => {
-  const [reader, setReader] = useState<NDEFReader | undefined>()
+  const isFirst = useRef(true)
   const [data, setData] = useState<DataView|undefined>()
   const [type, setType] = useState('')
 
-  const setup = () => {
-    if (!('NDEFReader' in window)) return
-    const r = new NDEFReader()
-    setReader(r)
-    r.addEventListener('error', (e) => {
-      console.error(e)
-    })
-    r.addEventListener('reading', (e) => {
-      const {message} = e as NDEFReadingEvent
-      const record = message.records[0]
-      const { data , recordType} = record
-      setData(data)
-      setType(recordType)
-    })
-  }
-
   const scan = async () => {
-    if(!reader) return
+    if (!('NDEFReader' in window)) return
+    const reader = new NDEFReader()
     try {
       await reader.scan()
+
+      if(!isFirst.current) return
+      reader.addEventListener('error', (e) => {
+        console.error(e)
+      })
+      reader.addEventListener('reading', (e) => {
+        const {message} = e as NDEFReadingEvent
+        const record = message.records[0]
+        const { data , recordType} = record
+        setData(data)
+        setType(recordType)
+      })
+      isFirst.current = false
     }
     catch (e) {
       console.error(e)
@@ -39,7 +37,6 @@ const Home = (): JSX.Element => {
         <h1>WEB NFC Reader</h1>
         <p>data: {data}</p>
         <p>type: {type}</p>
-        <Button type="primary" label="Setup" onClick={setup}/>
         <Button type="primary" label="scan" onClick={scan}/>
       </header>
     </div>
