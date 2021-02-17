@@ -3,28 +3,55 @@ import styles from "./style.module.css"
 import { Button } from "~/components/atoms/button"
 
 const Home = (): JSX.Element => {
-  const isFirst = useRef(true)
-  const [data, setData] = useState<DataView|undefined>()
+  const isFirstScan = useRef(true)
+  const [data, setData] = useState<string>('')
   const [type, setType] = useState('')
+  const [tempReader, setReader] = useState<NDEFReader|undefined>()
+  const [tempWriter, setWriter] = useState<NDEFReader|undefined>()
 
   const scan = async () => {
     if (!('NDEFReader' in window)) return
-    const reader = new NDEFReader()
+    const reader = tempReader || new NDEFReader()
+    if(!tempReader) setReader(reader)
     try {
       await reader.scan()
 
-      if(!isFirst.current) return
+      if(!isFirstScan.current) return
       reader.addEventListener('error', (e) => {
         console.error(e)
       })
       reader.addEventListener('reading', (e) => {
         const {message} = e as NDEFReadingEvent
         const record = message.records[0]
-        const { data , recordType} = record
-        setData(data)
-        setType(recordType)
+
+        if(record.recordType !== 'url') {
+          console.warn('recordType is not url.')
+          return
+        }
+        const textDecoder = new TextDecoder()
+        setData(textDecoder.decode(record.data))
+        setType(record.recordType)
       })
-      isFirst.current = false
+      isFirstScan.current = false
+    }
+    catch (e) {
+      console.error(e)
+    }
+  }
+
+  const write = async () => {
+    if (!('NDEFReader' in window)) return
+    const writer = tempWriter || new NDEFReader()
+    if(!tempReader) setWriter(writer)
+    try {
+      const urlRecord = {
+        recordType: "url",
+        data:"https://w3c.github.io/web-nfc/"
+      };
+      await writer.write({
+        records: [urlRecord]
+      })
+      alert('wrote NFC Tag!')
     }
     catch (e) {
       console.error(e)
@@ -38,6 +65,7 @@ const Home = (): JSX.Element => {
         <p>data: {data}</p>
         <p>type: {type}</p>
         <Button type="primary" label="scan" onClick={scan}/>
+        <Button type="primary" label="write" onClick={write}/>
       </header>
     </div>
   )
