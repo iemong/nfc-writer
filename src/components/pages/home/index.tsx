@@ -1,34 +1,40 @@
 import React, { useState, useEffect } from "react"
-import { Link } from "react-router-dom"
-import logo from "~/assets/images/logo.svg"
-import { Button } from "~/components/atoms/button"
 import styles from "./style.module.css"
 
 const Home = (): JSX.Element => {
-  const [count, setCount] = useState(0)
+  const [data, setData] = useState<DataView|undefined>()
+  const [type, setType] = useState('')
 
   useEffect(() => {
-    const timer = setTimeout(() => setCount(count + 1), 1000)
-    return () => clearTimeout(timer)
-  }, [count, setCount])
+    const f = async () => {
+      if (!('NDEFReader' in window)) return
+      try {
+        const reader = new NDEFReader()
+        await reader.scan()
+        reader.addEventListener('error', (e) => {
+          console.error(e)
+        })
+        reader.addEventListener('reading', (e) => {
+          const {message} = e as NDEFReadingEvent
+          const record = message.records[0]
+          const { data , recordType} = record
+          setData(data)
+          setType(recordType)
+        })
+      }
+      catch (e) {
+        console.error(e)
+      }
+    }
+    f()
+  }, [])
 
   return (
     <div className={styles.Home}>
       <header className={styles.HomeHeader}>
-        <img src={logo} alt="logo" className={styles.HomeLogo} />
-        <div className="flex">
-          <p>
-            Page has been open for <code>{count}</code> seconds.
-          </p>
-          <p>this is home page</p>
-        </div>
-        <div>
-          <Link to="users">users page</Link>
-        </div>
-        <div>
-          <Link to="about">about page</Link>
-        </div>
-        <Button type={'primary'} label={'button'}/>
+        <h1>WEB NFC Reader</h1>
+        <p>data: {data}</p>
+        <p>type: {type}</p>
       </header>
     </div>
   )
