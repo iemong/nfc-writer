@@ -1,6 +1,7 @@
 {
   "scripts": {
     "dev": "snowpack dev",
+    "dev-s": "snowpack dev --secure",
     "build": "snowpack build",
     "lint": "eslint --ext .tsx,.ts --ignore-path .gitignore .",
     "prettier": "npx prettier --write ."
