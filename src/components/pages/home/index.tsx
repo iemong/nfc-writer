@@ -12,7 +12,10 @@ const Home = (): JSX.Element => {
   const [tempWriter, setWriter] = useState<NDEFReader | undefined>()
 
   const scan = async () => {
-    if (!("NDEFReader" in window)) return
+    if (!("NDEFReader" in window)) {
+      alert("this browser is not supported WEB NFC")
+      return
+    }
     const reader = tempReader || new NDEFReader()
     if (!tempReader) setReader(reader)
     try {
@@ -49,7 +52,10 @@ const Home = (): JSX.Element => {
   }
 
   const write = async () => {
-    if (!("NDEFReader" in window)) return
+    if (!("NDEFReader" in window)) {
+      alert("this browser is not supported WEB NFC")
+      return
+    }
     const writer = tempWriter || new NDEFReader()
     if (!tempReader) setWriter(writer)
     try {
@@ -69,23 +75,36 @@ const Home = (): JSX.Element => {
   return (
     <div className={styles.Home}>
       <header className={styles.HomeHeader}>
-        <h1>WEB NFC Reader</h1>
-        <p>data: {data}</p>
-        <p>type: {type}</p>
-        <Button type="primary" label="scan" onClick={scan} />
-        <input
-          type="url"
-          name="url"
-          required={true}
-          placeholder={"https://example.com"}
-          onChange={changeUrlInput}
-          className={'text-gray-500'}
-        />
-        <label htmlFor="check">
-          <p>{`${overwrite}`}</p>
-          <input type="checkbox" onChange={changeCheckBox} checked={overwrite} />
-        </label>
-        <Button type="primary" label="write" onClick={write} />
+        <section>
+          <h1>WEB NFC Reader</h1>
+          <p>data: {data}</p>
+          <p>type: {type}</p>
+          <Button type="primary" label="scan" onClick={scan} />
+        </section>
+        <section>
+          <h1>WEB NFC Writer</h1>
+          <div>
+            <input
+              type="url"
+              name="url"
+              required={true}
+              placeholder={"https://example.com"}
+              onChange={changeUrlInput}
+              className={"text-gray-500"}
+            />
+          </div>
+          <div>
+            <label htmlFor="check">
+              <input
+                type="checkbox"
+                onChange={changeCheckBox}
+                checked={overwrite}
+              />
+              <span>overwrite</span>
+            </label>
+          </div>
+          <Button type="primary" label="write" onClick={write} />
+        </section>
       </header>
     </div>
   )
