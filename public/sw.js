@@ -23,7 +23,7 @@ self.addEventListener("fetch", (event) => {
         cacheResponse ||
         fetch(event.request).then((response) =>
           caches.open(version).then((cache) => {
-            cache.put(event.request, response.close())
+            cache.put(event.request, response.clone())
             return response
           })
         )
