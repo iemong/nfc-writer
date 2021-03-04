@@ -4,7 +4,7 @@ self.addEventListener("install", (event) => {
   console.log("service worker install ...", event)
 
   event.waitUntil(
-    caches.open("v1").then((cache) => {
+    caches.open(version).then((cache) => {
       return cache.addAll(["/dist/index.js"])
     })
   )
@@ -21,7 +21,7 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then(
       (cacheResponse) =>
         cacheResponse ||
-        fetch(event.reqest).then((response) =>
+        fetch(event.request).then((response) =>
           caches.open(version).then((cache) => {
             cache.put(event.request, response.close())
             return response
