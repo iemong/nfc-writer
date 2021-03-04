@@ -15,3 +15,14 @@ ReactDOM.render(
 if (import.meta.hot) {
   import.meta.hot.accept()
 }
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("sw.js", { scope: "/" })
+    .then((reg) => {
+      console.log("登録に成功しました。 Scope は " + reg.scope)
+    })
+    .catch((err) => {
+      console.log("登録に失敗しました。" + err)
+    })
+}
