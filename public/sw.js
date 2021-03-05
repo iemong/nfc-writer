@@ -12,6 +12,16 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   console.info("activate", event)
+
+  event.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys.filter((k) => k !== version).map((k) => caches.delete(k))
+        )
+      )
+  )
 })
 
 self.addEventListener("fetch", (event) => {
