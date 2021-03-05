@@ -2,12 +2,6 @@ const version = "v1"
 
 self.addEventListener("install", (event) => {
   console.log("service worker install ...", event)
-
-  event.waitUntil(
-    caches.open(version).then((cache) => {
-      return cache.addAll(["/dist/index.js"])
-    })
-  )
 })
 
 self.addEventListener("activate", (event) => {
