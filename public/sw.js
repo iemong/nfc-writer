@@ -21,12 +21,20 @@ self.addEventListener("fetch", (event) => {
     caches.match(event.request).then(
       (cacheResponse) =>
         cacheResponse ||
-        fetch(event.request).then((response) =>
-          caches.open(version).then((cache) => {
-            cache.put(event.request, response.clone())
-            return response
-          })
-        )
+        fetch(event.request).then((response) => {
+          if (response.ok) {
+            return caches.open(version).then((cache) => {
+              cache.put(event.request, response.clone())
+              return response
+            })
+          }
+          return Promise.reject(
+            "Invalid response.  URL:" +
+              response.url +
+              " Status: " +
+              response.status
+          )
+        })
     )
   )
 })
